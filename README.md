@@ -6,4 +6,8 @@ It aims to remove the need of coding specific administrative views by providing 
 ---
 
 # Features
-- TBD
+- Configurable endpoint with the attached panel
+- Availability of specific tables configurable on startup
+- Reading database metadata and generating CRUD views for it
+- Dynamic lookups for foreign keyed columns
+- ...
