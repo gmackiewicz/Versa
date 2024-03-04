@@ -12,6 +12,7 @@ It reads database metadata and uses it to generate CRUD views.
 - Attachable panel endpoint to an existing web app;
 - Authorization and authentication with "parent's" project middleware;
 - Dynamic lookups (when a table has columns that are foreign keyed to a different table);
+- Audit log for all administrative actions;
 
 # Is it ready for production use?
 No.

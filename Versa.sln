@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{87D95E1C-0965-4051-AD25-0D50911EA371}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versa", "src\Versa\Versa.csproj", "{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7} = {87D95E1C-0965-4051-AD25-0D50911EA371}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5BB20FF-F8C3-4497-9463-5BEE5F2CC6A7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
