@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-Versa.Sample.MvcApp-CE7E66E7-0385-4BFA-9712-ADAD3E270BD1</UserSecretsId>
     </PropertyGroup>

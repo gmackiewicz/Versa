@@ -17,7 +17,8 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services
+            .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
         builder.Services.AddControllersWithViews();
 
@@ -46,6 +47,8 @@ public class Program
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
         app.MapRazorPages();
+
+        app.UseVersaPanel();
 
         EnsureDatabaseMigrated(app);
 
