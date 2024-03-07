@@ -1,35 +1,49 @@
-﻿using System.IO;
-using System.Net.Mime;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Versa.Pages;
 
 namespace Versa;
 
 public class VersaMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public VersaMiddleware(RequestDelegate next)
+    public VersaMiddleware(RequestDelegate next, IServiceScopeFactory serviceScopeFactory)
     {
         _next = next;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        await using var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Versa.Pages.Main.html");
-        using var streamReader = new StreamReader(resourceStream);
-        var resourceContent = await streamReader.ReadToEndAsync();
+        using var scope = _serviceScopeFactory.CreateScope();
+        var pageExecutor = scope.ServiceProvider.GetRequiredService<PageResultExecutor>();
 
-        context.Response.StatusCode = StatusCodes.Status200OK;
-        context.Response.ContentType = MediaTypeNames.Text.Html;
+        var pageModel = new Main();
 
-        await context.Response.WriteAsync(resourceContent);
+        pageModel.OnGet();
 
-        // var buffer = Encoding.UTF8.GetBytes(resourceContent);
-        // context.Response.ContentLength = buffer.Length;
-        // await using var stream = context.Response.Body;
-        // await stream.WriteAsync(buffer, 0, buffer.Length);
-        // await stream.FlushAsync();
+        var routeData = new RouteData();
+        routeData.Values["page"] = "/Pages/Main.cshtml";
+
+        var actionContext = new ActionContext(context, routeData, new ActionDescriptor());
+        var viewData = new ViewDataDictionary<Main>(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+        viewData.Model = pageModel;
+        var pageContext = new PageContext(actionContext)
+        {
+            ViewData = viewData
+        };
+
+        var result = new PageResult();
+        await pageExecutor.ExecuteAsync(pageContext, result);
     }
 }
