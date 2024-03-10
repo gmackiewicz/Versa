@@ -18,6 +18,11 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+        var versaConnectionString =
+            builder.Configuration.GetConnectionString("VersaConnection") ??
+            throw new InvalidOperationException("Connection string 'VersaConnection' not found.");
+        builder.Services.AddVersa(versaConnectionString);
+
         builder.Services
             .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -38,6 +43,8 @@ public class Program
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+
+        app.UseVersa();
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();

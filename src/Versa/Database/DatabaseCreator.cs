@@ -4,15 +4,31 @@ using Microsoft.Data.SqlClient;
 
 namespace Versa.Database;
 
-internal class DatabaseCreation
+internal class DatabaseCreator
 {
-    internal void EnsureDatabaseCreated(string connectionString)
+    private readonly VersaDbConfiguration _dbConfiguration;
+
+    public DatabaseCreator(VersaDbConfiguration dbConfiguration)
+    {
+        _dbConfiguration = dbConfiguration;
+    }
+
+    internal void EnsureDatabaseCreated()
     {
         try
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_dbConfiguration.ConnectionString);
 
-            connection.Execute(@"IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE [TABLE_NAME] = 'Version')
+            connection.Execute(InitScript());
+        }
+        catch (Exception ex)
+        {
+            // TODO: logger
+        }
+    }
+
+    private string InitScript() =>
+        @"IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE [TABLE_NAME] = 'Version')
 BEGIN
     CREATE TABLE [dbo].[Version](
         [Version] [int] NOT NULL,
@@ -22,6 +38,12 @@ BEGIN
 END
 ELSE
     PRINT 'Table [Version] exists.'
+
+
+DECLARE @CurrentVersion INT;
+SELECT @CurrentVersion = MAX([Version]) FROM [Version]
+
+IF (@CurrentVersion >= 1) RETURN;
 
 
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE [TABLE_NAME] = 'SchemaInfo')
@@ -75,11 +97,5 @@ ELSE
 
 INSERT INTO [dbo].[Version] ([Version], [InstalledOn]) VALUES (1, GETUTCDATE());
 
-PRINT 'Done.'");
-        }
-        catch (Exception ex)
-        {
-            // TODO: logger
-        }
-    }
+PRINT 'Done.'";
 }
