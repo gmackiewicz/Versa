@@ -11,20 +11,33 @@ public static class VersaModule
     {
         services.AddSingleton(new VersaDbConfiguration { ConnectionString = connectionString });
 
-        services.AddScoped<DatabaseCreator>();
+        services.AddScoped<VersaDatabaseService>();
         services.AddScoped<MetadataReader>();
 
         return services;
     }
 
-    public static IApplicationBuilder UseVersa(this WebApplication applicationBuilder)
+    public static IApplicationBuilder UseVersa(this WebApplication applicationBuilder, VersaOptions options)
     {
         using var scope = applicationBuilder.Services.CreateScope();
-        var databaseCreator = scope.ServiceProvider.GetRequiredService<DatabaseCreator>();
-        databaseCreator.EnsureDatabaseCreated();
+        var databaseService = scope.ServiceProvider.GetRequiredService<VersaDatabaseService>();
+        databaseService.EnsureDatabaseCreated();
+
+        if (options.ReadMetadataOnStartup)
+        {
+            var metadataReader = scope.ServiceProvider.GetRequiredService<MetadataReader>();
+            var metadata = metadataReader.ReadTargetDatabaseMetadata(options.TargetDbConnectionString);
+            databaseService.UpdateSavedMetadata(metadata);
+        }
 
         return applicationBuilder;
     }
+}
+
+public class VersaOptions
+{
+    public bool ReadMetadataOnStartup { get; set; }
+    public string TargetDbConnectionString { get; set; }
 }
 
 public class VersaDbConfiguration

@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Versa.Database.Metadata;
 
 namespace Versa.Database;
 
-internal class DatabaseCreator
+internal class VersaDatabaseService
 {
     private readonly VersaDbConfiguration _dbConfiguration;
 
-    public DatabaseCreator(VersaDbConfiguration dbConfiguration)
+    public VersaDatabaseService(VersaDbConfiguration dbConfiguration)
     {
         _dbConfiguration = dbConfiguration;
     }
@@ -25,6 +27,13 @@ internal class DatabaseCreator
         {
             // TODO: logger
         }
+    }
+
+    internal void UpdateSavedMetadata(List<SchemaInfo> schemaInfos)
+    {
+        using var connection = new SqlConnection(_dbConfiguration.ConnectionString);
+
+        // TODO
     }
 
     private string InitScript() =>

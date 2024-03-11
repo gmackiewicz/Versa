@@ -8,7 +8,7 @@ namespace Versa.Database.Metadata;
 
 internal class MetadataReader
 {
-    internal List<SchemaInfo> ParseDatabaseMetadata(string connectionString)
+    internal List<SchemaInfo> ReadTargetDatabaseMetadata(string connectionString)
     {
         try
         {

@@ -44,7 +44,11 @@ public class Program
             app.UseHsts();
         }
 
-        app.UseVersa();
+        app.UseVersa(new VersaOptions
+        {
+            ReadMetadataOnStartup = true,
+            TargetDbConnectionString = connectionString
+        });
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
