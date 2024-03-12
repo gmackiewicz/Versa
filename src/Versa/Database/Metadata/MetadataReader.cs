@@ -29,9 +29,9 @@ internal class MetadataReader
                                 {
                                     Name = c.ColumnName,
                                     DataType = c.DataType,
-                                    IsNullable = c.IsNullable,
-                                    Position = c.Position,
-                                    CharacterMaxLength = c.CharacterMaxLength
+                                    IsNullable = c.IsNullable == "YES",
+                                    Position = int.Parse(c.Position),
+                                    CharacterMaxLength = c.CharacterMaxLength is null ? null : int.Parse(c.CharacterMaxLength)
                                 })
                         })
                 })
