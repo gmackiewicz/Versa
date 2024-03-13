@@ -45,16 +45,17 @@ internal class VersaDatabaseService
             var schemaFromDb = schemas.FirstOrDefault(s => s.Schema == schema.Schema);
             if (schemaFromDb is null)
             {
-                SaveSchemaInfo(connection, schema);
+                AddSchemaInfo(connection, schema);
             }
             else
             {
-                // TODO: update schema info
+                schema.Id = schemaFromDb.Id;
+                UpdateSchemaInfo(connection, schema);
             }
         }
     }
 
-    private static void SaveSchemaInfo(SqlConnection connection, SchemaInfo schema)
+    private static void AddSchemaInfo(SqlConnection connection, SchemaInfo schema)
     {
         var schemaId = connection.QuerySingle<int>(
             "INSERT INTO SchemaInfo ([Schema], VerifiedOn) " +
@@ -80,6 +81,79 @@ internal class VersaDatabaseService
                     "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
                     column);
             }
+        }
+    }
+
+    private void UpdateSchemaInfo(SqlConnection connection, SchemaInfo schema)
+    {
+        connection.Execute(
+            "DELETE FROM TableInfo WHERE SchemaId = @SchemaId AND [Name] NOT IN @Tables",
+            new { SchemaId = schema.Id, Tables = schema.Tables.Select(s => s.Name) });
+
+        var tables = connection.Query<TableInfo>(
+            "SELECT * FROM TableInfo WHERE SchemaId = @schemaId",
+            new { schemaId = schema.Id });
+
+        foreach (var table in schema.Tables)
+        {
+            var tableFromDb = tables.FirstOrDefault(t => t.Name == table.Name);
+            if (tableFromDb is null)
+            {
+                AddTableInfo(connection, table);
+            }
+            else
+            {
+                table.Id = tableFromDb.Id;
+                UpdateTableInfo(connection, table);
+            }
+        }
+
+        connection.Execute(
+            "UPDATE SchemaInfo SET VerifiedOn = GETUTCDATE() WHERE Id = @SchemaId",
+            new { SchemaId = schema.Id });
+    }
+
+    private void AddTableInfo(SqlConnection connection, TableInfo table)
+    {
+        var tableId = connection.QuerySingle<int>(
+            "INSERT INTO TableInfo ([SchemaId], [Name]) " +
+            "OUTPUT INSERTED.Id " +
+            "VALUES (@SchemaId, @Name)",
+            table);
+
+        foreach (var column in table.Columns)
+        {
+            column.TableId = tableId;
+            connection.Execute(
+                "INSERT INTO ColumnInfo ([TableId], [Name], DataType, IsNullable, Position, CharacterMaxLength)" +
+                "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
+                column);
+        }
+    }
+
+    private void UpdateTableInfo(SqlConnection connection, TableInfo table)
+    {
+        connection.Execute(
+            "DELETE FROM ColumnInfo WHERE TableId = @TableId AND [Name] NOT IN @Columns",
+            new { TableId = table.Id, Columns = table.Columns.Select(s => s.Name) });
+
+        var columns = connection.Query<ColumnInfo>(
+            "SELECT * FROM ColumnInfo WHERE TableId = @tableId",
+            new { tableId = table.Id });
+
+        foreach (var column in table.Columns)
+        {
+            var columnFromDb = columns.FirstOrDefault(c => c.Name == column.Name);
+            if (columnFromDb is not null)
+            {
+                continue;
+            }
+
+            column.TableId = table.Id;
+            connection.Execute(
+                "INSERT INTO ColumnInfo ([TableId], [Name], DataType, IsNullable, Position, CharacterMaxLength)" +
+                "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
+                column);
         }
     }
 

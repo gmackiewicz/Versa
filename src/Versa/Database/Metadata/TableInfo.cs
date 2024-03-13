@@ -9,6 +9,10 @@ internal class TableInfo
     public string Name { get; set; }
     public IEnumerable<ColumnInfo> Columns { get; set; }
 
+    public TableInfo()
+    {
+    }
+
     public TableInfo(string name)
     {
         Name = name;
