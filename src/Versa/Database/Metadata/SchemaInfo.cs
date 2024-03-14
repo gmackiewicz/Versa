@@ -19,4 +19,9 @@ internal class SchemaInfo
         Schema = schema;
         VerifiedOn = DateTime.UtcNow;
     }
+
+    public static string InsertSql() =>
+        "INSERT INTO SchemaInfo ([Schema], VerifiedOn) " +
+        "OUTPUT INSERTED.Id " +
+        "VALUES (@Schema, @VerifiedOn)";
 }

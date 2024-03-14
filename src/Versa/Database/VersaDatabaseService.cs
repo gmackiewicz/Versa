@@ -57,29 +57,17 @@ internal class VersaDatabaseService
 
     private static void AddSchemaInfo(SqlConnection connection, SchemaInfo schema)
     {
-        var schemaId = connection.QuerySingle<int>(
-            "INSERT INTO SchemaInfo ([Schema], VerifiedOn) " +
-            "OUTPUT INSERTED.Id " +
-            "VALUES (@Schema, @VerifiedOn)",
-            schema);
+        var schemaId = connection.QuerySingle<int>(SchemaInfo.InsertSql(), schema);
 
         foreach (var table in schema.Tables)
         {
             table.SchemaId = schemaId;
-
-            var tableId = connection.QuerySingle<int>(
-                "INSERT INTO TableInfo ([SchemaId], [Name]) " +
-                "OUTPUT INSERTED.Id " +
-                "VALUES (@SchemaId, @Name)",
-                table);
+            var tableId = connection.QuerySingle<int>(TableInfo.InsertSql(), table);
 
             foreach (var column in table.Columns)
             {
                 column.TableId = tableId;
-                connection.Execute(
-                    "INSERT INTO ColumnInfo ([TableId], [Name], DataType, IsNullable, Position, CharacterMaxLength)" +
-                    "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
-                    column);
+                connection.Execute(ColumnInfo.InsertSql(), column);
             }
         }
     }
@@ -115,19 +103,12 @@ internal class VersaDatabaseService
 
     private void AddTableInfo(SqlConnection connection, TableInfo table)
     {
-        var tableId = connection.QuerySingle<int>(
-            "INSERT INTO TableInfo ([SchemaId], [Name]) " +
-            "OUTPUT INSERTED.Id " +
-            "VALUES (@SchemaId, @Name)",
-            table);
+        var tableId = connection.QuerySingle<int>(TableInfo.InsertSql(), table);
 
         foreach (var column in table.Columns)
         {
             column.TableId = tableId;
-            connection.Execute(
-                "INSERT INTO ColumnInfo ([TableId], [Name], DataType, IsNullable, Position, CharacterMaxLength)" +
-                "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
-                column);
+            connection.Execute(ColumnInfo.InsertSql(), column);
         }
     }
 
@@ -150,10 +131,7 @@ internal class VersaDatabaseService
             }
 
             column.TableId = table.Id;
-            connection.Execute(
-                "INSERT INTO ColumnInfo ([TableId], [Name], DataType, IsNullable, Position, CharacterMaxLength)" +
-                "VALUES (@TableId, @Name, @DataType, @IsNullable, @Position, @CharacterMaxLength)",
-                column);
+            connection.Execute(ColumnInfo.InsertSql(), column);
         }
     }
 

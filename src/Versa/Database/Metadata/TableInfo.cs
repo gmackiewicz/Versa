@@ -17,4 +17,9 @@ internal class TableInfo
     {
         Name = name;
     }
+
+    public static string InsertSql() =>
+        "INSERT INTO TableInfo ([SchemaId], [Name]) " +
+        "OUTPUT INSERTED.Id " +
+        "VALUES (@SchemaId, @Name)";
 }
