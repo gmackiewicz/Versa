@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 using Versa.Database;
 using Versa.Database.Metadata;
 
@@ -13,6 +15,15 @@ public static class VersaModule
 
         services.AddScoped<VersaDatabaseService>();
         services.AddScoped<MetadataReader>();
+
+        var logger = new LoggerConfiguration()
+            .WriteTo
+            .MSSqlServer(
+                connectionString: connectionString,
+                sinkOptions: new MSSqlServerSinkOptions { TableName = "InternalLog", AutoCreateSqlTable = true })
+            .CreateLogger();
+
+        services.AddSingleton<ILogger>(logger);
 
         return services;
     }

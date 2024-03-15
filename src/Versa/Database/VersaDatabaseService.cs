@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Serilog;
 using Versa.Database.Metadata;
 
 namespace Versa.Database;
@@ -10,10 +11,14 @@ namespace Versa.Database;
 internal class VersaDatabaseService
 {
     private readonly VersaDbConfiguration _dbConfiguration;
+    private readonly ILogger _logger;
 
-    public VersaDatabaseService(VersaDbConfiguration dbConfiguration)
+    public VersaDatabaseService(
+        VersaDbConfiguration dbConfiguration,
+        ILogger logger)
     {
         _dbConfiguration = dbConfiguration;
+        _logger = logger;
     }
 
     internal void EnsureDatabaseCreated()
@@ -26,12 +31,13 @@ internal class VersaDatabaseService
         }
         catch (Exception ex)
         {
-            // TODO: logger
+            _logger.Fatal(ex, "Init failed.");
         }
     }
 
     internal void UpdateSavedMetadata(List<SchemaInfo> schemaInfos)
     {
+        _logger.Information("Metadata update started.");
         using var connection = new SqlConnection(_dbConfiguration.ConnectionString);
 
         connection.Execute(
@@ -53,6 +59,7 @@ internal class VersaDatabaseService
                 UpdateSchemaInfo(connection, schema);
             }
         }
+        _logger.Information("Metadata update finished.");
     }
 
     private static void AddSchemaInfo(SqlConnection connection, SchemaInfo schema)

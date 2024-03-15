@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Serilog;
 
 namespace Versa.Database.Metadata;
 
 internal class MetadataReader
 {
+    private readonly ILogger _logger;
+
+    public MetadataReader(ILogger logger)
+    {
+        _logger = logger;
+    }
+
     internal List<SchemaInfo> ReadTargetDatabaseMetadata(string connectionString)
     {
         try
@@ -39,7 +47,7 @@ internal class MetadataReader
         }
         catch (Exception ex)
         {
-            // TODO: logger
+            _logger.Fatal(ex, "Metadata retrieval from the target database failed.");
             return [];
         }
     }
