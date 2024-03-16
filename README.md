@@ -5,8 +5,33 @@ It reads database metadata and uses it to generate CRUD views.
 
 ---
 
+# Quickstart guide
+Versa requires a database for internal use.
+This database should be created empty (with owner permissions applied for the user that Versa will access it through).
+Schema will be populated at startup accordingly to Versa's requirements.
+
+Provided the connection string for the internal database is stored in the `appsettings.json`, you can use the following snippet to register Versa in your project. 
+```csharp
+// add Versa services
+var versaConnectionString =
+    builder.Configuration.GetConnectionString("VersaConnection") ??
+    throw new InvalidOperationException("Connection string 'VersaConnection' not found.");
+builder.Services.AddVersa(versaConnectionString);
+
+// ...
+
+// invoke the initialization code
+app.UseVersa(new VersaOptions
+{
+    ReadMetadataOnStartup = true,
+    TargetDbConnectionString = connectionString
+});
+```
+
+---
+
 # Features (to-do)
-- Read database metadata (and save it in a persistent store);
+- [x] Read database metadata (and save it in a persistent store);
 - Generate CRUD views for tables found in the database;
 - Configuration of tables to use (or omit) on startup;
 - Attachable panel endpoint to an existing web app;
