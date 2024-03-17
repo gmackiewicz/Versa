@@ -22,6 +22,11 @@ public class Program
             throw new InvalidOperationException("Connection string 'VersaConnection' not found.");
         builder.Services.AddVersa(versaConnectionString);
 
+        builder.Services.AddRazorPages(opt =>
+        {
+            opt.Conventions.AddPageRoute("/About", "/versa/about");
+        });
+
         builder.Services
             .AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>();
