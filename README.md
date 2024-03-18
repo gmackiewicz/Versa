@@ -5,12 +5,19 @@ It reads database metadata and uses it to generate CRUD views.
 
 ---
 
-# Quickstart guide
+# Requirements
+
+The package will target .NET 8.
+
 Versa requires a database for internal use.
-This database should be created empty (with owner permissions applied for the user that Versa will access it through).
+This database should be created empty and in advance (with owner permissions applied for the user that Versa will access it through).
 Schema will be populated at startup accordingly to Versa's requirements.
 
-Provided the connection string for the internal database is stored in the `appsettings.json`, you can use the following snippet to register Versa in your project. 
+> [!NOTE]
+> Currently only SQL Server is supported.
+
+# Quickstart guide
+Provided the connection string for the internal database is stored in the `appsettings.json` (in key `VersaConnection`), you can use the following snippet to register Versa in your project.
 ```csharp
 // add Versa services
 var versaConnectionString =
